@@ -10,7 +10,7 @@ export class BrandDTO {
     description: "Brand ID",
     example: 1,
   })
-  id: string;
+  id: number;
 
   @ApiProperty({
     description: "Brand Name",
