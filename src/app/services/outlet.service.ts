@@ -1,25 +1,36 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Outlet } from "../../models/outlet.entity";
-import { getManager, Repository } from "typeorm";
-import { OutletResponse, OutletWithPaginationResponse } from "../domains/outlet/outlet.response";
-import { QueryBuilder } from "typeorm-query-builder-wrapper";
-import { OutletCreateDto } from "../domains/outlet/outlet-create.dto";
-import { OutletQuery } from "../domains/outlet/outlet.query";
-import { OutletUpdateDto } from "../domains/outlet/outlet-update.dto";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Outlet } from '../../models/outlet.entity';
+import { getManager, Repository } from 'typeorm';
+import {
+  OutletResponse,
+  OutletWithPaginationResponse,
+} from '../domains/outlet/outlet.response';
+import { QueryBuilder } from 'typeorm-query-builder-wrapper';
+import { OutletCreateDto } from '../domains/outlet/outlet-create.dto';
+import { OutletQuery } from '../domains/outlet/outlet.query';
+import { OutletUpdateDto } from '../domains/outlet/outlet-update.dto';
+
+const monasLoc = {
+  lat: '-6.1753924',
+  long: '106.8245779',
+};
 
 @Injectable()
 export class OutletService {
   constructor(
     @InjectRepository(Outlet)
-    private readonly outRepo: Repository<Outlet>
+    private readonly outRepo: Repository<Outlet>,
   ) {}
 
   // Get all outlets
   public async getList(
-    query: OutletQuery
+    query: OutletQuery,
   ): Promise<OutletWithPaginationResponse> {
-
     const params = { order: '^name', limit: 25, ...query };
     const qb = new QueryBuilder(Outlet, 'out', params);
 
@@ -33,20 +44,31 @@ export class OutletService {
       ['out.address', 'address'],
       ['out.picture', 'picture'],
       ['out.longitude', 'longitude'],
-      ['out.latitude', 'latitude']
+      ['out.latitude', 'latitude'],
     );
+
+    // @ts-ignore
+    if (query.nearest === 'true') {
+      qb.qb.addOrderBy(
+        `(longitude - ${monasLoc.lat}) * (longitude - ${monasLoc.lat}) +
+                         (latitude - ${monasLoc.long}) * (latitude - ${monasLoc.long})`,
+        'ASC',
+      );
+    }
+    // @ts-ignore
+    if (query.nearest === 'false') {
+      qb.qb.addOrderBy('id', 'ASC');
+    }
 
     const outlet = await qb.exec();
     return new OutletWithPaginationResponse(outlet, params);
   }
 
-  public async create(
-    data: OutletCreateDto
-  ): Promise<OutletResponse> {
+  public async create(data: OutletCreateDto): Promise<OutletResponse> {
     // Check registered outlet name
     const outletExists = await this.outRepo.findOne({
       where: {
-        name: data.name
+        name: data.name,
       },
     });
 
@@ -70,7 +92,7 @@ export class OutletService {
 
     try {
       const saveOutlet = await this.outRepo.save(createOutlet);
-      return new OutletResponse(saveOutlet)
+      return new OutletResponse(saveOutlet);
     } catch (err) {
       console.log(err);
       throw err;
@@ -81,10 +103,10 @@ export class OutletService {
   public async findById(id: number): Promise<OutletResponse> {
     let getOutlet = await this.outRepo.findOne(id);
     if (!getOutlet) {
-      throw new NotFoundException("Outlet tidak ditemukan")
+      throw new NotFoundException('Outlet tidak ditemukan');
     }
 
-    return new OutletResponse(getOutlet)
+    return new OutletResponse(getOutlet);
   }
 
   // Update Outlet
@@ -92,7 +114,7 @@ export class OutletService {
     // Get outlet by id id if exists
     let getOutlet = await this.outRepo.findOne(id);
     if (!getOutlet) {
-      throw new NotFoundException("Outlet tidak ditemukan")
+      throw new NotFoundException('Outlet tidak ditemukan');
     }
 
     // Check duplicate outlet name
@@ -120,8 +142,8 @@ export class OutletService {
     try {
       await this.outRepo.update(id, updateOutlet);
       return {
-        "message": "success update outlet",
-        "id": id
+        message: 'success update outlet',
+        id: id,
       };
     } catch (err) {
       console.log(err);
@@ -133,19 +155,17 @@ export class OutletService {
   public async delete(id: number): Promise<any> {
     let getOutlet = await this.outRepo.findOne(id);
     if (!getOutlet) {
-      throw new NotFoundException("Outlet tidak ditemukan")
+      throw new NotFoundException('Outlet tidak ditemukan');
     }
 
     try {
       await this.outRepo.delete(id);
       return {
-        "message": "success delete outlet",
-        "id": id
-      }
+        message: 'success delete outlet',
+        id: id,
+      };
     } catch (e) {
-      throw e.message
+      throw e.message;
     }
-
   }
-
 }
