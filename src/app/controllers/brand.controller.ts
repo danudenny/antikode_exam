@@ -67,7 +67,7 @@ export class BrandController {
     { name: 'banner', maxCount: 1 }
   ], {
     storage: diskStorage({
-      destination: './public/upload',
+      destination: './public/upload/brand',
       filename: (req, files, cb) => {
         let trimName = files.originalname.split(".")
         let randomName = `${Math.floor(Date.now() / 1000)}-${trimName[0]}`
@@ -133,7 +133,7 @@ export class BrandController {
     { name: 'banner', maxCount: 1 }
   ], {
     storage: diskStorage({
-      destination: './public/upload',
+      destination: './public/upload/brand',
       filename: (req, files, cb) => {
         let trimName = files.originalname.split(".")
         let randomName = `${Math.floor(Date.now() / 1000)}-${trimName[0]}`

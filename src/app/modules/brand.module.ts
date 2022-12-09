@@ -9,7 +9,7 @@ import { MulterModule } from "@nestjs/platform-express";
   imports: [
     TypeOrmModule.forFeature([Brand]),
     MulterModule.register({
-      dest: "./public/upload"
+      dest: "./public/upload/brand"
     })
   ],
   controllers: [BrandController],
