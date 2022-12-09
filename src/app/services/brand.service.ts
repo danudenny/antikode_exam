@@ -39,7 +39,6 @@ export class BrandService {
 
   // Create a Brand
   public async create(data: BrandCreateDTO): Promise<BrandResponse> {
-    console.log(data);
     // Check registered brand name
     const brandExists = await this.brndRepo.findOne({
       where: {
