@@ -1,11 +1,12 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Brand } from "../../models/brand.entity";
-import { Repository, Raw } from "typeorm"
+import { Repository, getManager } from "typeorm"
 import { BrandResponse, BrandWithPaginationResponse } from "../domains/brand/brand.response";
 import { BrandQuery } from "../domains/brand/brand.query";
 import { QueryBuilder } from "typeorm-query-builder-wrapper";
 import { BrandCreateDTO } from "../domains/brand/brand-create.dto";
+import { BrandUpdateDTO } from "../domains/brand/brand-update.dto";
 
 @Injectable()
 export class BrandService {
@@ -72,7 +73,72 @@ export class BrandService {
     }
   }
 
-  public async findById() {
+  // Find Brand by ID
+  public async findById(id: number): Promise<BrandResponse> {
+    let getBrand = await this.brndRepo.findOne(id);
+    if (!getBrand) {
+      throw new NotFoundException("Brand tidak ditemukan")
+    }
+
+    return new BrandResponse(getBrand)
+  }
+
+  // Update Brand
+  public async update(data: BrandUpdateDTO, id: number): Promise<any> {
+    // Get brand by id id if exists
+    let getBrand = await this.brndRepo.findOne(id);
+    if (!getBrand) {
+      throw new NotFoundException("Brand tidak ditemukan")
+    }
+
+    // Check duplicate brand name
+    let { name: brandName } = data;
+    brandName = brandName?.trim();
+    if (brandName) {
+      const brandExists = await getManager().query(
+        `SELECT id FROM brands WHERE id != $1 AND "name" ILIKE $2`,
+        [id, brandName],
+      );
+      if (brandExists?.length > 0) {
+        throw new BadRequestException(`Nama brand sudah terdaftar!`);
+      }
+    }
+
+    // Mapping updated brand payload
+    let updateBrand = this.brndRepo.create({
+      name: data.name,
+      logo: data?.logo,
+      banner: data?.banner
+    });
+
+    try {
+      await this.brndRepo.update(id, updateBrand);
+      return {
+        "message": "success update brand",
+        "id": id
+      };
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  }
+
+  // Delete brand
+  public async delete(id: number): Promise<any> {
+    let getBrand = await this.brndRepo.findOne(id);
+    if (!getBrand) {
+      throw new NotFoundException("Brand tidak ditemukan")
+    }
+
+    try {
+      await this.brndRepo.delete(id);
+      return {
+        "message": "success delete brand",
+        "id": id
+      }
+    } catch (e) {
+      throw e.message
+    }
 
   }
 
