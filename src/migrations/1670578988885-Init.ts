@@ -1,14 +1,27 @@
 import {MigrationInterface, QueryRunner} from "typeorm";
 
-export class InitSchema1670427741506 implements MigrationInterface {
-    name = 'InitSchema1670427741506'
+export class Init1670578988885 implements MigrationInterface {
+    name = 'Init1670578988885'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
+            CREATE TABLE "outlets" (
+                "id" SERIAL NOT NULL,
+                "created_at" TIMESTAMP NOT NULL DEFAULT '"2022-12-09T09:43:11.517Z"',
+                "updated_at" TIMESTAMP NOT NULL DEFAULT '"2022-12-09T09:43:11.517Z"',
+                "name" character varying(100) NOT NULL,
+                "picture" text,
+                "address" text,
+                "longitude" numeric(15, 7) NOT NULL,
+                "latitude" numeric(15, 7) NOT NULL,
+                CONSTRAINT "PK_4f218ad1778c5c01d7bf77bab02" PRIMARY KEY ("id")
+            )
+        `);
+        await queryRunner.query(`
             CREATE TABLE "products" (
                 "id" SERIAL NOT NULL,
-                "created_at" TIMESTAMP NOT NULL DEFAULT '"2022-12-07T15:42:24.706Z"',
-                "updated_at" TIMESTAMP NOT NULL DEFAULT '"2022-12-07T15:42:24.706Z"',
+                "created_at" TIMESTAMP NOT NULL DEFAULT '"2022-12-09T09:43:11.517Z"',
+                "updated_at" TIMESTAMP NOT NULL DEFAULT '"2022-12-09T09:43:11.517Z"',
                 "name" character varying(100) NOT NULL,
                 "picture" text,
                 "price" numeric(2) NOT NULL,
@@ -16,23 +29,10 @@ export class InitSchema1670427741506 implements MigrationInterface {
             )
         `);
         await queryRunner.query(`
-            CREATE TABLE "outlets" (
-                "id" SERIAL NOT NULL,
-                "created_at" TIMESTAMP NOT NULL DEFAULT '"2022-12-07T15:42:24.706Z"',
-                "updated_at" TIMESTAMP NOT NULL DEFAULT '"2022-12-07T15:42:24.706Z"',
-                "name" character varying(100) NOT NULL,
-                "picture" text,
-                "address" text,
-                "longitude" numeric(7) NOT NULL,
-                "latitude" numeric(7) NOT NULL,
-                CONSTRAINT "PK_4f218ad1778c5c01d7bf77bab02" PRIMARY KEY ("id")
-            )
-        `);
-        await queryRunner.query(`
             CREATE TABLE "brands" (
                 "id" SERIAL NOT NULL,
-                "created_at" TIMESTAMP NOT NULL DEFAULT '"2022-12-07T15:42:24.706Z"',
-                "updated_at" TIMESTAMP NOT NULL DEFAULT '"2022-12-07T15:42:24.706Z"',
+                "created_at" TIMESTAMP NOT NULL DEFAULT '"2022-12-09T09:43:11.517Z"',
+                "updated_at" TIMESTAMP NOT NULL DEFAULT '"2022-12-09T09:43:11.517Z"',
                 "name" character varying(100) NOT NULL,
                 "logo" text,
                 "banner" text,
@@ -118,10 +118,10 @@ export class InitSchema1670427741506 implements MigrationInterface {
             DROP TABLE "brands"
         `);
         await queryRunner.query(`
-            DROP TABLE "outlets"
+            DROP TABLE "products"
         `);
         await queryRunner.query(`
-            DROP TABLE "products"
+            DROP TABLE "outlets"
         `);
     }
 

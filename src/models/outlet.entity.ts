@@ -24,14 +24,16 @@ export class Outlet extends BaseModel{
 
   @Column({
     type: "decimal",
-    precision: 7,
+    precision: 15,
+    scale: 7,
     nullable: false
   })
   longitude: number
 
   @Column({
     type: "decimal",
-    precision: 7,
+    precision: 15,
+    scale: 7,
     nullable: false
   })
   latitude: number
