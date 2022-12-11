@@ -69,18 +69,22 @@ export class BrandService {
     }
 
     // Get outlet
-    const createOutlet = await this.outRepo.findByIds(data.outlets);
+    const createOutlet = data.outlets
+      ? await this.outRepo.findByIds(data.outlets)
+      : null;
 
     // Get Product
-    const createProduct = await this.prodRepo.findByIds(data.products);
+    const createProduct = data.products
+      ? await this.prodRepo.findByIds(data.products)
+      : null;
 
     // mapping brand creation
     let createBrand = this.brndRepo.create({
       name: data.name,
       logo: data.logo,
       banner: data.banner,
-      outlets: createOutlet ? createOutlet : null,
-      products: createProduct ? createProduct : null,
+      outlets: createOutlet,
+      products: createProduct,
     });
 
     try {
@@ -129,11 +133,23 @@ export class BrandService {
       }
     }
 
+    // Get outlet
+    const createOutlet = data.outlets
+      ? await this.outRepo.findByIds(data.outlets)
+      : null;
+
+    // Get Product
+    const createProduct = data.products
+      ? await this.prodRepo.findByIds(data.products)
+      : null;
+
     // Mapping updated brand payload
     let updateBrand = this.brndRepo.create({
       name: data.name,
       logo: data?.logo,
       banner: data?.banner,
+      outlets: createOutlet,
+      products: createProduct,
     });
 
     try {

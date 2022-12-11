@@ -75,6 +75,12 @@ export class BrandController {
             type: 'integer',
           },
         },
+        products: {
+          type: 'array',
+          items: {
+            type: 'integer',
+          },
+        },
       },
     },
   })
@@ -146,6 +152,18 @@ export class BrandController {
           type: 'string',
           format: 'binary',
         },
+        outlets: {
+          type: 'array',
+          items: {
+            type: 'integer',
+          },
+        },
+        products: {
+          type: 'array',
+          items: {
+            type: 'integer',
+          },
+        },
       },
     },
   })
@@ -176,15 +194,13 @@ export class BrandController {
     @Body() payload: BrandUpdateDTO,
     @Param('id') id: number,
   ) {
-    if (files.logo != null) {
+    if (files) {
       files.logo.map((e: Express.Multer.File) => {
         let trimName = e.originalname.split('.');
         let randomName = `${Math.floor(Date.now() / 1000)}-${trimName[0]}`;
         logoImg = `${randomName}${extname(e.originalname)}`;
       });
-    }
 
-    if (files.banner != null) {
       files.banner.map((e: Express.Multer.File) => {
         let trimName = e.originalname.split('.');
         let randomName = `${Math.floor(Date.now() / 1000)}-${trimName[0]}`;
@@ -197,6 +213,8 @@ export class BrandController {
         name: payload.name,
         logo: logoImg,
         banner: bannerImg,
+        outlets: payload.outlets,
+        products: payload.products,
       },
       id,
     );
