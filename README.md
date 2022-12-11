@@ -45,7 +45,7 @@
 4. [ ] Please send and attach your work to fahrurrazi@antikode.com deddy@antikode.com fajar@antikode.com and cc to
    rebecca@antikode.com
 5. [ ] Use this as an email subject: Backend Developer Test_Name (ex: Backend Developer Test_Ahmad Yani).
-6. [ ] Remember to use best practices for any kind of methodology you use.
+6. [x] Remember to use best practices for any kind of methodology you use. (I'm using NestJS)
 
 ---
 

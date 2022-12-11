@@ -7,12 +7,16 @@ import { BrandQuery } from "../domains/brand/brand.query";
 import { QueryBuilder } from "typeorm-query-builder-wrapper";
 import { BrandCreateDTO } from "../domains/brand/brand-create.dto";
 import { BrandUpdateDTO } from "../domains/brand/brand-update.dto";
+import { Outlet } from "../../models/outlet.entity";
+import { BrandDetailResponse } from "../domains/brand/brand-detail.response";
 
 @Injectable()
 export class BrandService {
   constructor(
     @InjectRepository(Brand)
-    private readonly brndRepo: Repository<Brand>
+    private readonly brndRepo: Repository<Brand>,
+    @InjectRepository(Outlet)
+    private readonly outRepo: Repository<Outlet>
   ) {}
 
   // List All Brands
@@ -63,8 +67,18 @@ export class BrandService {
       banner: data.banner
     });
 
+    console.log(typeof (data.outlets));
+
     try {
-      const saveBrand = await this.brndRepo.save(createBrand);
+      const saveBrand = await this.brndRepo.save(createBrand)
+
+      // const createOutlet = await this.outRepo.findByIds(saveBrand.outlets, {
+      //   relations: ['outlets']
+      // });
+      // for (const outlet of createOutlet) {
+      //   outlet.brands.push(saveBrand)
+      // }
+      // await this.outRepo.save(createOutlet)
       return new BrandResponse(saveBrand);
     } catch (err) {
       console.log(err);
@@ -73,13 +87,15 @@ export class BrandService {
   }
 
   // Find Brand by ID
-  public async findById(id: number): Promise<BrandResponse> {
-    let getBrand = await this.brndRepo.findOne(id);
+  public async findById(id: number): Promise<BrandDetailResponse> {
+    let getBrand = await this.brndRepo.findOne(id, {
+      relations: ['outlets', 'products']
+    });
     if (!getBrand) {
       throw new NotFoundException("Brand tidak ditemukan")
     }
 
-    return new BrandResponse(getBrand)
+    return new BrandDetailResponse(getBrand)
   }
 
   // Update Brand

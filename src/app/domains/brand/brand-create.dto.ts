@@ -4,6 +4,7 @@ import {
   IsOptional,
   IsString
 } from 'class-validator';
+import { Outlet } from "../../../models/outlet.entity";
 
 export class BrandCreateDTO {
   @ApiProperty({
@@ -26,5 +27,8 @@ export class BrandCreateDTO {
   })
   @IsOptional()
   banner: string;
+
+  @ApiProperty()
+  outlets: Outlet[]
 
 }

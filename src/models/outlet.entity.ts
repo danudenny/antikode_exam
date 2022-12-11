@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from "typeorm";
 import { BaseModel } from "./base_model";
+import { Brand } from "./brand.entity";
 
 @Entity('outlets')
 export class Outlet extends BaseModel{

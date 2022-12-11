@@ -24,7 +24,7 @@ const monasLoc = {
 export class OutletService {
   constructor(
     @InjectRepository(Outlet)
-    private readonly outRepo: Repository<Outlet>,
+    private readonly outRepo: Repository<Outlet>
   ) {}
 
   // Get all outlets

@@ -7,7 +7,7 @@ import {
 import { Outlet } from "../../../models/outlet.entity";
 import { Product } from "../../../models/product.entity";
 
-export class BrandDTO {
+export class BrandDetailDTO {
   @ApiProperty({
     description: "Brand ID",
     example: 1,

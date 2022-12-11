@@ -24,6 +24,8 @@ import { FileFieldsInterceptor } from "@nestjs/platform-express";
 import { extname } from "path";
 import { diskStorage } from "multer";
 import { BrandUpdateDTO } from "../domains/brand/brand-update.dto";
+import { OutletDto } from "../domains/outlet/outlet.dto";
+import { Outlet } from "../../models/outlet.entity";
 
 let logoImg = ""
 let bannerImg = ""
@@ -59,6 +61,12 @@ export class BrandController {
           type: 'string',
           format: 'binary',
         },
+        outlets: {
+          type: 'array',
+          items: {
+            type: 'integer'
+          },
+        },
       },
     },
   })
@@ -91,10 +99,13 @@ export class BrandController {
       bannerImg = `${randomName}${extname(e.originalname)}`
     })
 
+    console.log(typeof (payload.outlets));
+
     return this.brndSvc.create({
       name: payload.name,
       logo: logoImg,
       banner: bannerImg,
+      outlets: payload.outlets
     })
   }
 
