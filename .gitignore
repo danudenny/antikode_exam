@@ -37,5 +37,5 @@ lerna-debug.log*
 .env
 
 public/upload/brand/*
-public/upload/products/*
+public/upload/product/*
 public/upload/outlet/*

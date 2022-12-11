@@ -116,6 +116,7 @@ export class BrandController {
       logo: logoImg,
       banner: bannerImg,
       outlets: payload.outlets,
+      products: payload.products,
     });
   }
 

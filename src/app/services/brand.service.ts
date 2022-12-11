@@ -16,6 +16,7 @@ import { BrandCreateDTO } from '../domains/brand/brand-create.dto';
 import { BrandUpdateDTO } from '../domains/brand/brand-update.dto';
 import { Outlet } from '../../models/outlet.entity';
 import { BrandDetailResponse } from '../domains/brand/brand-detail.response';
+import { Product } from '../../models/product.entity';
 
 @Injectable()
 export class BrandService {
@@ -24,6 +25,8 @@ export class BrandService {
     private readonly brndRepo: Repository<Brand>,
     @InjectRepository(Outlet)
     private readonly outRepo: Repository<Outlet>,
+    @InjectRepository(Product)
+    private readonly prodRepo: Repository<Product>,
   ) {}
 
   // List All Brands
@@ -65,14 +68,19 @@ export class BrandService {
       throw new BadRequestException(`Nama produk tidak boleh kosong!`);
     }
 
+    // Get outlet
     const createOutlet = await this.outRepo.findByIds(data.outlets);
+
+    // Get Product
+    const createProduct = await this.prodRepo.findByIds(data.products);
 
     // mapping brand creation
     let createBrand = this.brndRepo.create({
       name: data.name,
       logo: data.logo,
       banner: data.banner,
-      outlets: createOutlet,
+      outlets: createOutlet ? createOutlet : null,
+      products: createProduct ? createProduct : null,
     });
 
     try {

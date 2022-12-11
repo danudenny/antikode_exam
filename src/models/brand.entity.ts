@@ -24,7 +24,7 @@ export class Brand extends BaseModel {
   })
   banner: string;
 
-  @ManyToMany(() => Outlet, { eager: true })
+  @ManyToMany(() => Outlet)
   @JoinTable({
     name: 'brand_outlets',
     joinColumn: {
@@ -38,7 +38,7 @@ export class Brand extends BaseModel {
   })
   outlets: Outlet[];
 
-  @ManyToMany(() => Product, { eager: true })
+  @ManyToMany(() => Product)
   @JoinTable({
     name: 'brand_products',
     joinColumn: {
