@@ -1,26 +1,40 @@
-import { Entity, Column } from 'typeorm'
-import { BaseModel } from "./base_model";
+import { Entity, Column, ManyToMany, JoinTable } from 'typeorm';
+import { BaseModel } from './base_model';
+import { Brand } from './brand.entity';
 
 @Entity('products')
-export class Product extends BaseModel{
+export class Product extends BaseModel {
   @Column({
-    type: "varchar",
+    type: 'varchar',
     length: 100,
-    nullable: false
+    nullable: false,
   })
-  name: string
+  name: string;
 
   @Column({
-    type: "text",
-    nullable: true
+    type: 'text',
+    nullable: true,
   })
-  picture: string
+  picture: string;
 
   @Column({
-    type: "decimal",
+    type: 'decimal',
     precision: 2,
-    nullable: false
+    nullable: false,
   })
-  price: number
+  price: number;
 
+  @ManyToMany(() => Brand, { eager: true })
+  @JoinTable({
+    name: 'brand_outlets',
+    joinColumn: {
+      name: 'brand_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'outlet_id',
+      referencedColumnName: 'id',
+    },
+  })
+  brands: Brand[];
 }

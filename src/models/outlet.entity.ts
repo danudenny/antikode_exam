@@ -1,42 +1,61 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from "typeorm";
-import { BaseModel } from "./base_model";
-import { Brand } from "./brand.entity";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToMany,
+  JoinTable,
+} from 'typeorm';
+import { BaseModel } from './base_model';
+import { Brand } from './brand.entity';
 
 @Entity('outlets')
-export class Outlet extends BaseModel{
+export class Outlet extends BaseModel {
   @Column({
-    type: "varchar",
+    type: 'varchar',
     length: 100,
-    nullable: false
+    nullable: false,
   })
-  name: string
+  name: string;
 
   @Column({
-    type: "text",
-    nullable: true
+    type: 'text',
+    nullable: true,
   })
-  picture: string
+  picture: string;
 
   @Column({
-    type: "text",
-    nullable: true
+    type: 'text',
+    nullable: true,
   })
-  address: string
+  address: string;
 
   @Column({
-    type: "decimal",
+    type: 'decimal',
     precision: 15,
     scale: 7,
-    nullable: false
+    nullable: false,
   })
-  longitude: number
+  longitude: number;
 
   @Column({
-    type: "decimal",
+    type: 'decimal',
     precision: 15,
     scale: 7,
-    nullable: false
+    nullable: false,
   })
-  latitude: number
+  latitude: number;
 
+  @ManyToMany(() => Brand, { eager: true })
+  @JoinTable({
+    name: 'brand_outlets',
+    joinColumn: {
+      name: 'brand_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'outlet_id',
+      referencedColumnName: 'id',
+    },
+  })
+  brands: Brand[];
 }

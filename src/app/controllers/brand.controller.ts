@@ -8,27 +8,35 @@ import {
   UseInterceptors,
   Param,
   Delete,
-  Patch
-} from "@nestjs/common";
+  Patch,
+  Req,
+} from '@nestjs/common';
 import {
-  ApiBadRequestResponse, ApiBody, ApiConsumes,
+  ApiBadRequestResponse,
+  ApiBody,
+  ApiConsumes,
   ApiOkResponse,
-  ApiOperation, ApiParam,
-  ApiTags
-} from "@nestjs/swagger";
-import { BrandService } from "../services/brand.service";
-import { BrandResponse, BrandWithPaginationResponse } from "../domains/brand/brand.response";
-import { BrandQuery } from "../domains/brand/brand.query";
-import { BrandCreateDTO } from "../domains/brand/brand-create.dto";
-import { FileFieldsInterceptor } from "@nestjs/platform-express";
-import { extname } from "path";
-import { diskStorage } from "multer";
-import { BrandUpdateDTO } from "../domains/brand/brand-update.dto";
-import { OutletDto } from "../domains/outlet/outlet.dto";
-import { Outlet } from "../../models/outlet.entity";
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
+import { BrandService } from '../services/brand.service';
+import {
+  BrandResponse,
+  BrandWithPaginationResponse,
+} from '../domains/brand/brand.response';
+import { BrandQuery } from '../domains/brand/brand.query';
+import { BrandCreateDTO } from '../domains/brand/brand-create.dto';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { extname } from 'path';
+import { diskStorage } from 'multer';
+import { BrandUpdateDTO } from '../domains/brand/brand-update.dto';
+import { OutletDto } from '../domains/outlet/outlet.dto';
+import { Outlet } from '../../models/outlet.entity';
 
-let logoImg = ""
-let bannerImg = ""
+let logoImg = '';
+let bannerImg = '';
+
 @Controller('brands')
 @ApiTags('Brands')
 export class BrandController {
@@ -51,7 +59,7 @@ export class BrandController {
       type: 'object',
       properties: {
         name: {
-          type: 'string'
+          type: 'string',
         },
         logo: {
           type: 'string',
@@ -64,53 +72,55 @@ export class BrandController {
         outlets: {
           type: 'array',
           items: {
-            type: 'integer'
+            type: 'integer',
           },
         },
       },
     },
   })
-  @UseInterceptors(FileFieldsInterceptor([
-    { name: 'logo', maxCount: 1 },
-    { name: 'banner', maxCount: 1 }
-  ], {
-    storage: diskStorage({
-      destination: './public/upload/brand',
-      filename: (req, files, cb) => {
-        let trimName = files.originalname.split(".")
-        let randomName = `${Math.floor(Date.now() / 1000)}-${trimName[0]}`
-        let fileName = `${randomName}${extname(files.originalname)}`
-        cb(null, fileName)
-      }
-    })
-  }))
-  public async create(
-    @UploadedFiles() files,
-    @Body() payload: BrandCreateDTO
-  ) {
-    files.logo.map((e: Express.Multer.File) => {
-      let trimName = e.originalname.split(".")
-      let randomName = `${Math.floor(Date.now() / 1000)}-${trimName[0]}`
-      logoImg = `${randomName}${extname(e.originalname)}`
-    })
-    files.banner.map((e: Express.Multer.File) => {
-      let trimName = e.originalname.split(".")
-      let randomName = `${Math.floor(Date.now() / 1000)}-${trimName[0]}`
-      bannerImg = `${randomName}${extname(e.originalname)}`
-    })
-
-    console.log(typeof (payload.outlets));
+  @UseInterceptors(
+    FileFieldsInterceptor(
+      [
+        { name: 'logo', maxCount: 1 },
+        { name: 'banner', maxCount: 1 },
+      ],
+      {
+        storage: diskStorage({
+          destination: './public/upload/brand',
+          filename: (req, files, cb) => {
+            let trimName = files.originalname.split('.');
+            let randomName = `${Math.floor(Date.now() / 1000)}-${trimName[0]}`;
+            let fileName = `${randomName}${extname(files.originalname)}`;
+            cb(null, fileName);
+          },
+        }),
+      },
+    ),
+  )
+  public async create(@UploadedFiles() files, @Body() payload: BrandCreateDTO) {
+    if (files) {
+      files.logo.map((e: Express.Multer.File) => {
+        let trimName = e.originalname.split('.');
+        let randomName = `${Math.floor(Date.now() / 1000)}-${trimName[0]}`;
+        logoImg = `${randomName}${extname(e.originalname)}`;
+      });
+      files.banner.map((e: Express.Multer.File) => {
+        let trimName = e.originalname.split('.');
+        let randomName = `${Math.floor(Date.now() / 1000)}-${trimName[0]}`;
+        bannerImg = `${randomName}${extname(e.originalname)}`;
+      });
+    }
 
     return this.brndSvc.create({
       name: payload.name,
       logo: logoImg,
       banner: bannerImg,
-      outlets: payload.outlets
-    })
+      outlets: payload.outlets,
+    });
   }
 
   @Get('show/:id')
-  @ApiParam({name: 'id'})
+  @ApiParam({ name: 'id' })
   @ApiOperation({ summary: 'get Brand by ID' })
   @ApiOkResponse({ type: BrandResponse })
   @ApiBadRequestResponse({ description: 'Bad Request' })
@@ -125,7 +135,7 @@ export class BrandController {
       type: 'object',
       properties: {
         name: {
-          type: 'string'
+          type: 'string',
         },
         logo: {
           type: 'string',
@@ -138,57 +148,64 @@ export class BrandController {
       },
     },
   })
-  @ApiParam({name: 'id', type: 'number'})
-  @UseInterceptors(FileFieldsInterceptor([
-    { name: 'logo', maxCount: 1 },
-    { name: 'banner', maxCount: 1 }
-  ], {
-    storage: diskStorage({
-      destination: './public/upload/brand',
-      filename: (req, files, cb) => {
-        let trimName = files.originalname.split(".")
-        let randomName = `${Math.floor(Date.now() / 1000)}-${trimName[0]}`
-        let fileName = `${randomName}${extname(files.originalname)}`
-        cb(null, fileName)
-      }
-    })
-  }))
+  @ApiParam({ name: 'id', type: 'number' })
+  @UseInterceptors(
+    FileFieldsInterceptor(
+      [
+        { name: 'logo', maxCount: 1 },
+        { name: 'banner', maxCount: 1 },
+      ],
+      {
+        storage: diskStorage({
+          destination: './public/upload/brand',
+          filename: (req, files, cb) => {
+            let trimName = files.originalname.split('.');
+            let randomName = `${Math.floor(Date.now() / 1000)}-${trimName[0]}`;
+            let fileName = `${randomName}${extname(files.originalname)}`;
+            cb(null, fileName);
+          },
+        }),
+      },
+    ),
+  )
   @ApiOperation({ summary: 'Update Brand' })
   @ApiBadRequestResponse({ description: 'Bad Request' })
   public async update(
     @UploadedFiles() files,
     @Body() payload: BrandUpdateDTO,
-    @Param('id') id: number
+    @Param('id') id: number,
   ) {
     if (files.logo != null) {
       files.logo.map((e: Express.Multer.File) => {
-        let trimName = e.originalname.split(".")
-        let randomName = `${Math.floor(Date.now() / 1000)}-${trimName[0]}`
-        logoImg = `${randomName}${extname(e.originalname)}`
-      })
+        let trimName = e.originalname.split('.');
+        let randomName = `${Math.floor(Date.now() / 1000)}-${trimName[0]}`;
+        logoImg = `${randomName}${extname(e.originalname)}`;
+      });
     }
 
     if (files.banner != null) {
       files.banner.map((e: Express.Multer.File) => {
-        let trimName = e.originalname.split(".")
-        let randomName = `${Math.floor(Date.now() / 1000)}-${trimName[0]}`
-        bannerImg = `${randomName}${extname(e.originalname)}`
-      })
+        let trimName = e.originalname.split('.');
+        let randomName = `${Math.floor(Date.now() / 1000)}-${trimName[0]}`;
+        bannerImg = `${randomName}${extname(e.originalname)}`;
+      });
     }
 
-    return this.brndSvc.update({
-      name: payload.name,
-      logo: logoImg,
-      banner: bannerImg,
-    }, id)
+    return this.brndSvc.update(
+      {
+        name: payload.name,
+        logo: logoImg,
+        banner: bannerImg,
+      },
+      id,
+    );
   }
 
   @Delete('delete/:id')
-  @ApiParam({name: 'id'})
+  @ApiParam({ name: 'id' })
   @ApiOperation({ summary: 'Delete Brand by ID' })
   @ApiBadRequestResponse({ description: 'Bad Request' })
   public async delete(@Param() id: number) {
     return await this.brndSvc.delete(id);
   }
-
 }

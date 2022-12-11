@@ -1,14 +1,21 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Brand } from "../../models/brand.entity";
-import { Repository, getManager } from "typeorm"
-import { BrandResponse, BrandWithPaginationResponse } from "../domains/brand/brand.response";
-import { BrandQuery } from "../domains/brand/brand.query";
-import { QueryBuilder } from "typeorm-query-builder-wrapper";
-import { BrandCreateDTO } from "../domains/brand/brand-create.dto";
-import { BrandUpdateDTO } from "../domains/brand/brand-update.dto";
-import { Outlet } from "../../models/outlet.entity";
-import { BrandDetailResponse } from "../domains/brand/brand-detail.response";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Brand } from '../../models/brand.entity';
+import { Repository, getManager } from 'typeorm';
+import {
+  BrandResponse,
+  BrandWithPaginationResponse,
+} from '../domains/brand/brand.response';
+import { BrandQuery } from '../domains/brand/brand.query';
+import { QueryBuilder } from 'typeorm-query-builder-wrapper';
+import { BrandCreateDTO } from '../domains/brand/brand-create.dto';
+import { BrandUpdateDTO } from '../domains/brand/brand-update.dto';
+import { Outlet } from '../../models/outlet.entity';
+import { BrandDetailResponse } from '../domains/brand/brand-detail.response';
 
 @Injectable()
 export class BrandService {
@@ -16,13 +23,11 @@ export class BrandService {
     @InjectRepository(Brand)
     private readonly brndRepo: Repository<Brand>,
     @InjectRepository(Outlet)
-    private readonly outRepo: Repository<Outlet>
+    private readonly outRepo: Repository<Outlet>,
   ) {}
 
   // List All Brands
-  async list(
-    query: BrandQuery
-  ): Promise<BrandWithPaginationResponse> {
+  async list(query: BrandQuery): Promise<BrandWithPaginationResponse> {
     const params = { order: '^name', limit: 25, ...query };
     const qb = new QueryBuilder(Brand, 'br', params);
 
@@ -34,7 +39,7 @@ export class BrandService {
       ['br.id', 'id'],
       ['br.name', 'name'],
       ['br.logo', 'logo'],
-      ['br.banner', 'banner']
+      ['br.banner', 'banner'],
     );
 
     const brand = await qb.exec();
@@ -46,7 +51,7 @@ export class BrandService {
     // Check registered brand name
     const brandExists = await this.brndRepo.findOne({
       where: {
-        name: data.name
+        name: data.name,
       },
     });
 
@@ -60,25 +65,19 @@ export class BrandService {
       throw new BadRequestException(`Nama produk tidak boleh kosong!`);
     }
 
+    const createOutlet = await this.outRepo.findByIds(data.outlets);
+
     // mapping brand creation
     let createBrand = this.brndRepo.create({
       name: data.name,
       logo: data.logo,
-      banner: data.banner
+      banner: data.banner,
+      outlets: createOutlet,
     });
 
-    console.log(typeof (data.outlets));
-
     try {
-      const saveBrand = await this.brndRepo.save(createBrand)
+      const saveBrand = await this.brndRepo.save(createBrand);
 
-      // const createOutlet = await this.outRepo.findByIds(saveBrand.outlets, {
-      //   relations: ['outlets']
-      // });
-      // for (const outlet of createOutlet) {
-      //   outlet.brands.push(saveBrand)
-      // }
-      // await this.outRepo.save(createOutlet)
       return new BrandResponse(saveBrand);
     } catch (err) {
       console.log(err);
@@ -89,13 +88,13 @@ export class BrandService {
   // Find Brand by ID
   public async findById(id: number): Promise<BrandDetailResponse> {
     let getBrand = await this.brndRepo.findOne(id, {
-      relations: ['outlets', 'products']
+      relations: ['outlets', 'products'],
     });
     if (!getBrand) {
-      throw new NotFoundException("Brand tidak ditemukan")
+      throw new NotFoundException('Brand tidak ditemukan');
     }
 
-    return new BrandDetailResponse(getBrand)
+    return new BrandDetailResponse(getBrand);
   }
 
   // Update Brand
@@ -103,7 +102,7 @@ export class BrandService {
     // Get brand by id id if exists
     let getBrand = await this.brndRepo.findOne(id);
     if (!getBrand) {
-      throw new NotFoundException("Brand tidak ditemukan")
+      throw new NotFoundException('Brand tidak ditemukan');
     }
 
     // Check duplicate brand name
@@ -111,7 +110,10 @@ export class BrandService {
     brandName = brandName?.trim();
     if (brandName) {
       const brandExists = await getManager().query(
-        `SELECT id FROM brands WHERE id != $1 AND "name" ILIKE $2`,
+        `SELECT id
+         FROM brands
+         WHERE id != $1
+           AND "name" ILIKE $2`,
         [id, brandName],
       );
       if (brandExists?.length > 0) {
@@ -123,14 +125,14 @@ export class BrandService {
     let updateBrand = this.brndRepo.create({
       name: data.name,
       logo: data?.logo,
-      banner: data?.banner
+      banner: data?.banner,
     });
 
     try {
       await this.brndRepo.update(id, updateBrand);
       return {
-        "message": "success update brand",
-        "id": id
+        message: 'success update brand',
+        id: id,
       };
     } catch (err) {
       console.log(err);
@@ -142,19 +144,17 @@ export class BrandService {
   public async delete(id: number): Promise<any> {
     let getBrand = await this.brndRepo.findOne(id);
     if (!getBrand) {
-      throw new NotFoundException("Brand tidak ditemukan")
+      throw new NotFoundException('Brand tidak ditemukan');
     }
 
     try {
       await this.brndRepo.delete(id);
       return {
-        "message": "success delete brand",
-        "id": id
-      }
+        message: 'success delete brand',
+        id: id,
+      };
     } catch (e) {
-      throw e.message
+      throw e.message;
     }
-
   }
-
 }
