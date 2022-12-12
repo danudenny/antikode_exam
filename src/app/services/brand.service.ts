@@ -143,21 +143,18 @@ export class BrandService {
       ? await this.prodRepo.findByIds(data.products)
       : null;
 
-    // Mapping updated brand payload
-    let updateBrand = this.brndRepo.create({
+    const newBrand = {
       name: data.name,
       logo: data?.logo,
       banner: data?.banner,
       outlets: createOutlet,
       products: createProduct,
-    });
+    };
+
+    const updateBrand = this.brndRepo.merge(getBrand, newBrand);
 
     try {
-      await this.brndRepo.update(id, updateBrand);
-      return {
-        message: 'success update brand',
-        id: id,
-      };
+      return (await this.brndRepo.save(updateBrand)).id;
     } catch (err) {
       console.log(err);
       throw err;
