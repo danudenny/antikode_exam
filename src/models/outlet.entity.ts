@@ -44,18 +44,4 @@ export class Outlet extends BaseModel {
     nullable: false,
   })
   latitude: number;
-
-  @ManyToMany(() => Brand, { eager: true })
-  @JoinTable({
-    name: 'brand_outlets',
-    joinColumn: {
-      name: 'brand_id',
-      referencedColumnName: 'id',
-    },
-    inverseJoinColumn: {
-      name: 'outlet_id',
-      referencedColumnName: 'id',
-    },
-  })
-  brands: Brand[];
 }

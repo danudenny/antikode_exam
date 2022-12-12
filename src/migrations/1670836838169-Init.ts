@@ -1,14 +1,14 @@
 import {MigrationInterface, QueryRunner} from "typeorm";
 
-export class Init1670578988885 implements MigrationInterface {
-    name = 'Init1670578988885'
+export class Init1670836838169 implements MigrationInterface {
+    name = 'Init1670836838169'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
             CREATE TABLE "outlets" (
                 "id" SERIAL NOT NULL,
-                "created_at" TIMESTAMP NOT NULL DEFAULT '"2022-12-09T09:43:11.517Z"',
-                "updated_at" TIMESTAMP NOT NULL DEFAULT '"2022-12-09T09:43:11.517Z"',
+                "created_at" TIMESTAMP NOT NULL DEFAULT '"2022-12-12T09:20:41.540Z"',
+                "updated_at" TIMESTAMP NOT NULL DEFAULT '"2022-12-12T09:20:41.540Z"',
                 "name" character varying(100) NOT NULL,
                 "picture" text,
                 "address" text,
@@ -20,19 +20,19 @@ export class Init1670578988885 implements MigrationInterface {
         await queryRunner.query(`
             CREATE TABLE "products" (
                 "id" SERIAL NOT NULL,
-                "created_at" TIMESTAMP NOT NULL DEFAULT '"2022-12-09T09:43:11.517Z"',
-                "updated_at" TIMESTAMP NOT NULL DEFAULT '"2022-12-09T09:43:11.517Z"',
+                "created_at" TIMESTAMP NOT NULL DEFAULT '"2022-12-12T09:20:41.540Z"',
+                "updated_at" TIMESTAMP NOT NULL DEFAULT '"2022-12-12T09:20:41.540Z"',
                 "name" character varying(100) NOT NULL,
                 "picture" text,
-                "price" numeric(2) NOT NULL,
+                "price" numeric(100, 2) NOT NULL,
                 CONSTRAINT "PK_0806c755e0aca124e67c0cf6d7d" PRIMARY KEY ("id")
             )
         `);
         await queryRunner.query(`
             CREATE TABLE "brands" (
                 "id" SERIAL NOT NULL,
-                "created_at" TIMESTAMP NOT NULL DEFAULT '"2022-12-09T09:43:11.517Z"',
-                "updated_at" TIMESTAMP NOT NULL DEFAULT '"2022-12-09T09:43:11.517Z"',
+                "created_at" TIMESTAMP NOT NULL DEFAULT '"2022-12-12T09:20:41.540Z"',
+                "updated_at" TIMESTAMP NOT NULL DEFAULT '"2022-12-12T09:20:41.540Z"',
                 "name" character varying(100) NOT NULL,
                 "logo" text,
                 "banner" text,

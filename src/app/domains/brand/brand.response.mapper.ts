@@ -1,4 +1,4 @@
-import { BrandDTO } from "./brand.dto";
+import { BrandDTO } from './brand.dto';
 
 export class BrandResponseMapper {
   public static toDTO(dto: Partial<BrandDTO>): BrandDTO {

@@ -24,7 +24,7 @@ export class Brand extends BaseModel {
   })
   banner: string;
 
-  @ManyToMany(() => Outlet)
+  @ManyToMany(() => Outlet, { cascade: true })
   @JoinTable({
     name: 'brand_outlets',
     joinColumn: {
