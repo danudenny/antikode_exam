@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString } from "class-validator";
-import { BaseQuery } from "../base/base.query";
+import { IsOptional, IsString } from 'class-validator';
+import { BaseQuery } from '../base/base.query';
 
 export class ProductQuery extends BaseQuery {
   @ApiPropertyOptional({
@@ -14,7 +14,7 @@ export class ProductQuery extends BaseQuery {
     description: 'Search by product Name (using ILIKE sql)',
     example: 'iphone',
   })
+  @IsOptional()
   @IsString()
   name__icontains: string;
-
 }

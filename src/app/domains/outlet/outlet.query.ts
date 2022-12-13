@@ -15,12 +15,14 @@ export class OutletQuery extends BaseQuery {
     description: 'Search by Outlet Name (using ILIKE sql)',
     example: 'jakarta',
   })
+  @IsOptional()
   name__icontains?: string;
 
   @ApiPropertyOptional({
     description: 'Get nearest location to monas',
     example: true,
   })
+  @IsOptional()
   @ToBoolean()
   nearest: boolean;
 }

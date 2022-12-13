@@ -56,8 +56,6 @@ export class OutletService {
       getNearest === true ? 'ASC' : 'DESC',
     );
 
-    console.log(qb.qb.getQuery());
-
     const outlet = await qb.exec();
     return new OutletWithPaginationResponse(outlet, params);
   }
