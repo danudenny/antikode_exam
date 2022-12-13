@@ -44,4 +44,7 @@ export class Outlet extends BaseModel {
     nullable: false,
   })
   latitude: number;
+
+  @ManyToMany(() => Brand, (brand) => brand.outlets)
+  brands: Brand[];
 }

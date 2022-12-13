@@ -42,9 +42,9 @@
 1. Here are some general instructions for the task above.
 2. [x] Read the description carefully.
 3. [x] Use Mysql or Postgresql for the database, and upload it to GitHub when you get back to us.
-4. [ ] Please send and attach your work to fahrurrazi@antikode.com deddy@antikode.com fajar@antikode.com and cc to
+4. [x] Please send and attach your work to fahrurrazi@antikode.com deddy@antikode.com fajar@antikode.com and cc to
    rebecca@antikode.com
-5. [ ] Use this as an email subject: Backend Developer Test_Name (ex: Backend Developer Test_Ahmad Yani).
+5. [x] Use this as an email subject: Backend Developer Test_Name (ex: Backend Developer Test_Ahmad Yani).
 6. [x] Remember to use best practices for any kind of methodology you use. (I'm using NestJS)
 
 ---
