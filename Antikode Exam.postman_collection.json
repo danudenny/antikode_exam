@@ -1,0 +1,584 @@
+{
+	"info": {
+		"_postman_id": "ba6c804f-bf35-4144-8489-61588f174992",
+		"name": "Antikode Exam",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "3229558"
+	},
+	"item": [
+		{
+			"name": "Brands",
+			"item": [
+				{
+					"name": "Get All Brands",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/brands?page=1&limit=10&order=-createdAt",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"brands"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "order",
+									"value": "-createdAt"
+								},
+								{
+									"key": "id",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "name__icontains",
+									"value": "jakarta",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create a Brand",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Apple",
+									"type": "text"
+								},
+								{
+									"key": "logo",
+									"type": "file",
+									"src": "/Users/user/Pictures/10DecFMS.png"
+								},
+								{
+									"key": "banner",
+									"type": "file",
+									"src": "/Users/user/Pictures/20DecFMS.png"
+								},
+								{
+									"key": "outlets",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "outlets",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "products",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "products",
+									"value": "4",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/brands/create",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"brands",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Brand",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Samsung",
+									"type": "text"
+								},
+								{
+									"key": "logo",
+									"type": "file",
+									"src": "/Users/user/Pictures/10DecFMS.png"
+								},
+								{
+									"key": "banner",
+									"type": "file",
+									"src": "/Users/user/Pictures/20DecFMS.png"
+								},
+								{
+									"key": "outlets",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "products",
+									"value": "",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "outlets",
+									"value": "3",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/brands/update/3",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"brands",
+								"update",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Brand",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/brands/delete/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"brands",
+								"delete",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Brand by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/brands/show/4",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"brands",
+								"show",
+								"4"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Outlets",
+			"item": [
+				{
+					"name": "Get All Outlets",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/outlets?nearest=true",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"outlets"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"disabled": true
+								},
+								{
+									"key": "order",
+									"value": "-createdAt",
+									"disabled": true
+								},
+								{
+									"key": "id",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "name__icontains",
+									"value": "jakarta",
+									"disabled": true
+								},
+								{
+									"key": "nearest",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create an Outlet",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Paragon Semarang",
+									"type": "text"
+								},
+								{
+									"key": "address",
+									"value": "Semarang",
+									"type": "text"
+								},
+								{
+									"key": "picture",
+									"type": "file",
+									"src": "/Users/user/Pictures/Logo Fun Mini Soccer.jpg"
+								},
+								{
+									"key": "longitude",
+									"value": "110.4134021",
+									"type": "text"
+								},
+								{
+									"key": "latitude",
+									"value": "-6.9791805",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/outlets/create",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"outlets",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create an Outlet Copy",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Paragon City Mall",
+									"type": "text"
+								},
+								{
+									"key": "address",
+									"value": "Semarang",
+									"type": "text"
+								},
+								{
+									"key": "picture",
+									"type": "file",
+									"src": "/Users/user/Pictures/Logo Fun Mini Soccer.jpg"
+								},
+								{
+									"key": "longitude",
+									"value": "110.4134021",
+									"type": "text"
+								},
+								{
+									"key": "latitude",
+									"value": "-6.9791805",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/outlets/update/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"outlets",
+								"update",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Outlet",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/outlets/delete/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"outlets",
+								"delete",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Outlet by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/outlets/show/2",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"outlets",
+								"show",
+								"2"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "Get All Products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/products?page=1&limit=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"products"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "order",
+									"value": "-createdAt",
+									"disabled": true
+								},
+								{
+									"key": "id",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "name__icontains",
+									"value": "iphone",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Product by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/products/show/2",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"products",
+								"show",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create a Product",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "MacBook Pro M1 Pro",
+									"type": "text"
+								},
+								{
+									"key": "picture",
+									"type": "file",
+									"src": "/Users/user/Pictures/motm_10dec.png"
+								},
+								{
+									"key": "price",
+									"value": "36000000",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/products/create",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"products",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Product",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Galaxy Note 20",
+									"type": "text"
+								},
+								{
+									"key": "picture",
+									"type": "file",
+									"src": "/Users/user/Pictures/motm_10dec.png"
+								},
+								{
+									"key": "price",
+									"value": "15000000",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/products/update/2",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"products",
+								"update",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Product",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/products/delete/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"products",
+								"delete",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://antikode.danudenny.tech",
+			"type": "string"
+		}
+	]
+}
