@@ -24,7 +24,7 @@ const monasLoc = {
 export class OutletService {
   constructor(
     @InjectRepository(Outlet)
-    private readonly outRepo: Repository<Outlet>
+    private readonly outRepo: Repository<Outlet>,
   ) {}
 
   // Get all outlets
@@ -54,10 +54,12 @@ export class OutletService {
                          (latitude - ${monasLoc.long}) * (latitude - ${monasLoc.long})`,
         'ASC',
       );
-    }
-    // @ts-ignore
-    if (query.nearest === 'false') {
-      qb.qb.addOrderBy('id', 'ASC');
+    } else {
+      qb.qb.addOrderBy(
+        `(longitude - ${monasLoc.lat}) * (longitude - ${monasLoc.lat}) +
+                         (latitude - ${monasLoc.long}) * (latitude - ${monasLoc.long})`,
+        'DESC',
+      );
     }
 
     const outlet = await qb.exec();
@@ -122,7 +124,10 @@ export class OutletService {
     outName = outName?.trim();
     if (outName) {
       const outExists = await getManager().query(
-        `SELECT id FROM outlets WHERE id != $1 AND "name" ILIKE $2`,
+        `SELECT id
+         FROM outlets
+         WHERE id != $1
+           AND "name" ILIKE $2`,
         [id, outName],
       );
       if (outExists?.length > 0) {

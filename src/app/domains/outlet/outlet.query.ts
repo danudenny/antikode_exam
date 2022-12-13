@@ -1,6 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import { IsOptional } from 'class-validator';
 import { BaseQuery } from '../base/base.query';
+import { ToBoolean } from '../../../utils/convert-boolean';
 
 export class OutletQuery extends BaseQuery {
   @ApiPropertyOptional({
@@ -14,13 +15,12 @@ export class OutletQuery extends BaseQuery {
     description: 'Search by Outlet Name (using ILIKE sql)',
     example: 'jakarta',
   })
-  @IsString()
-  name__icontains: string;
+  name__icontains?: string;
 
   @ApiPropertyOptional({
     description: 'Get nearest location to monas',
     example: true,
   })
-  @IsBoolean()
+  @ToBoolean()
   nearest: boolean;
 }
