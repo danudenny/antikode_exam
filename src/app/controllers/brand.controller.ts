@@ -9,6 +9,7 @@ import {
   Param,
   Delete,
   Patch,
+  ValidationPipe,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -46,43 +47,18 @@ export class BrandController {
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Create a Brand' })
   @ApiOkResponse({ type: BrandResponse })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        name: {
-          type: 'string',
-        },
-        logo: {
-          type: 'string',
-          format: 'binary',
-        },
-        banner: {
-          type: 'string',
-          format: 'binary',
-        },
-        outlets: {
-          type: 'array',
-          items: {
-            type: 'integer',
-          },
-        },
-        products: {
-          type: 'array',
-          items: {
-            type: 'integer',
-          },
-        },
-      },
-    },
-  })
+  @ApiBody({ type: BrandCreateDTO })
   @UseInterceptors(
     FileFieldsInterceptor([
       { name: 'logo', maxCount: 1 },
       { name: 'banner', maxCount: 1 },
     ]),
   )
-  public async create(@UploadedFiles() files, @Body() payload: BrandCreateDTO) {
+  public async create(
+    @UploadedFiles() files,
+    @Body()
+    payload: BrandCreateDTO,
+  ) {
     await this.brndSvc.create({
       name: payload.name,
       logo: files ? files.logo : null,

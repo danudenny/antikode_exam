@@ -76,8 +76,12 @@ export class BrandService {
       ? await this.outRepo.findByIds(data.outlets)
       : null;
 
-    const logoName = UploadFile.fileRename(data.logo[0].originalname);
-    const bannerName = UploadFile.fileRename(data.banner[0].originalname);
+    const logoName = data.logo
+      ? UploadFile.fileRename(data.logo[0].originalname)
+      : '';
+    const bannerName = data.logo
+      ? UploadFile.fileRename(data.banner[0].originalname)
+      : '';
 
     // Get Product
     const createProduct = data.products
@@ -87,15 +91,15 @@ export class BrandService {
     // mapping brand creation
     let createBrand = this.brndRepo.create({
       name: data.name,
-      logo: logoName.toString(),
-      banner: bannerName.toString(),
+      logo: logoName.toString() || null,
+      banner: bannerName.toString() || null,
       outlets: createOutlet,
       products: createProduct,
     });
 
     try {
       const saveBrand = await this.brndRepo.save(createBrand);
-      if (saveBrand) {
+      if (saveBrand && (data.logo || data.banner)) {
         await UploadFile.saveFile(
           data.logo[0].buffer,
           dirName,
