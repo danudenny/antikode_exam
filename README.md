@@ -1,5 +1,10 @@
 ## Antikode BE Exam
 
+## Deployed On Linux
+
+1. Access This site for Open API Docs: `https://antikode.danudenny.tech/docs`
+2.
+
 ### Tech Stack :
 
 1. Postgresql 11
