@@ -4,10 +4,12 @@ import { SwaggerModule } from '@nestjs/swagger/dist/swagger-module';
 import { AppModule } from './app.module';
 import { LoaderEnv } from './config/loader';
 import { Logger, PinoLogger } from 'nestjs-pino';
+
 const logger = new PinoLogger({});
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { logger: false });
+  // @ts-ignore
+  const app = await NestFactory.create(AppModule, { logger: true });
   app.useLogger(app.get(Logger));
 
   app.enableCors();
@@ -24,6 +26,6 @@ async function bootstrap() {
 
   await app.listen(LoaderEnv.envs.APP_PORT);
   logger.info(`Listen APP on PORT :: ${LoaderEnv.envs.APP_PORT}`);
-
 }
+
 bootstrap();

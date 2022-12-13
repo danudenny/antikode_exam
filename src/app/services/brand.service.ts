@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brand } from '../../models/brand.entity';
-import { Repository, getManager } from 'typeorm';
+import { getManager, Repository } from 'typeorm';
 import {
   BrandResponse,
   BrandWithPaginationResponse,
@@ -17,6 +17,9 @@ import { BrandUpdateDTO } from '../domains/brand/brand-update.dto';
 import { Outlet } from '../../models/outlet.entity';
 import { BrandDetailResponse } from '../domains/brand/brand-detail.response';
 import { Product } from '../../models/product.entity';
+import { UploadFile } from '../../utils/upload-file';
+
+const dirName = './public/upload/brand/';
 
 @Injectable()
 export class BrandService {
@@ -73,6 +76,9 @@ export class BrandService {
       ? await this.outRepo.findByIds(data.outlets)
       : null;
 
+    const logoName = UploadFile.fileRename(data.logo[0].originalname);
+    const bannerName = UploadFile.fileRename(data.banner[0].originalname);
+
     // Get Product
     const createProduct = data.products
       ? await this.prodRepo.findByIds(data.products)
@@ -81,15 +87,26 @@ export class BrandService {
     // mapping brand creation
     let createBrand = this.brndRepo.create({
       name: data.name,
-      logo: data.logo,
-      banner: data.banner,
+      logo: logoName.toString(),
+      banner: bannerName.toString(),
       outlets: createOutlet,
       products: createProduct,
     });
 
     try {
       const saveBrand = await this.brndRepo.save(createBrand);
-
+      if (saveBrand) {
+        await UploadFile.saveFile(
+          data.logo[0].buffer,
+          dirName,
+          logoName.toString(),
+        );
+        await UploadFile.saveFile(
+          data.banner[0].buffer,
+          dirName,
+          bannerName.toString(),
+        );
+      }
       return new BrandResponse(saveBrand);
     } catch (err) {
       console.log(err);
@@ -143,10 +160,13 @@ export class BrandService {
       ? await this.prodRepo.findByIds(data.products)
       : null;
 
+    const logoName = UploadFile.fileRename(data.logo[0].originalname);
+    const bannerName = UploadFile.fileRename(data.banner[0].originalname);
+
     const newBrand = {
       name: data.name,
-      logo: data?.logo,
-      banner: data?.banner,
+      logo: logoName.toString(),
+      banner: bannerName.toString(),
       outlets: createOutlet,
       products: createProduct,
     };
@@ -154,7 +174,21 @@ export class BrandService {
     const updateBrand = this.brndRepo.merge(getBrand, newBrand);
 
     try {
-      return (await this.brndRepo.save(updateBrand)).id;
+      const save = (await this.brndRepo.save(updateBrand)).id;
+      if (save) {
+        await UploadFile.saveFile(
+          data.logo[0].buffer,
+          dirName,
+          logoName.toString(),
+        );
+        await UploadFile.saveFile(
+          data.banner[0].buffer,
+          dirName,
+          bannerName.toString(),
+        );
+      }
+
+      return;
     } catch (err) {
       console.log(err);
       throw err;

@@ -9,7 +9,6 @@ import {
   Param,
   Delete,
   Patch,
-  Req,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -28,14 +27,7 @@ import {
 import { BrandQuery } from '../domains/brand/brand.query';
 import { BrandCreateDTO } from '../domains/brand/brand-create.dto';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import { extname } from 'path';
-import { diskStorage } from 'multer';
 import { BrandUpdateDTO } from '../domains/brand/brand-update.dto';
-import { OutletDto } from '../domains/outlet/outlet.dto';
-import { Outlet } from '../../models/outlet.entity';
-
-let logoImg = '';
-let bannerImg = '';
 
 @Controller('brands')
 @ApiTags('Brands')
@@ -85,45 +77,23 @@ export class BrandController {
     },
   })
   @UseInterceptors(
-    FileFieldsInterceptor(
-      [
-        { name: 'logo', maxCount: 1 },
-        { name: 'banner', maxCount: 1 },
-      ],
-      {
-        storage: diskStorage({
-          destination: './public/upload/brand',
-          filename: (req, files, cb) => {
-            let trimName = files.originalname.split('.');
-            let randomName = `${Math.floor(Date.now() / 1000)}-${trimName[0]}`;
-            let fileName = `${randomName}${extname(files.originalname)}`;
-            cb(null, fileName);
-          },
-        }),
-      },
-    ),
+    FileFieldsInterceptor([
+      { name: 'logo', maxCount: 1 },
+      { name: 'banner', maxCount: 1 },
+    ]),
   )
   public async create(@UploadedFiles() files, @Body() payload: BrandCreateDTO) {
-    if (files) {
-      files.logo.map((e: Express.Multer.File) => {
-        let trimName = e.originalname.split('.');
-        let randomName = `${Math.floor(Date.now() / 1000)}-${trimName[0]}`;
-        logoImg = `${randomName}${extname(e.originalname)}`;
-      });
-      files.banner.map((e: Express.Multer.File) => {
-        let trimName = e.originalname.split('.');
-        let randomName = `${Math.floor(Date.now() / 1000)}-${trimName[0]}`;
-        bannerImg = `${randomName}${extname(e.originalname)}`;
-      });
-    }
-
-    return this.brndSvc.create({
+    await this.brndSvc.create({
       name: payload.name,
-      logo: logoImg,
-      banner: bannerImg,
+      logo: files ? files.logo : null,
+      banner: files ? files.banner : null,
       outlets: payload.outlets,
       products: payload.products,
     });
+
+    return {
+      message: 'success create new brand',
+    };
   }
 
   @Get('show/:id')
@@ -167,26 +137,13 @@ export class BrandController {
       },
     },
   })
-  @ApiParam({ name: 'id', type: 'number' })
   @UseInterceptors(
-    FileFieldsInterceptor(
-      [
-        { name: 'logo', maxCount: 1 },
-        { name: 'banner', maxCount: 1 },
-      ],
-      {
-        storage: diskStorage({
-          destination: './public/upload/brand',
-          filename: (req, files, cb) => {
-            let trimName = files.originalname.split('.');
-            let randomName = `${Math.floor(Date.now() / 1000)}-${trimName[0]}`;
-            let fileName = `${randomName}${extname(files.originalname)}`;
-            cb(null, fileName);
-          },
-        }),
-      },
-    ),
+    FileFieldsInterceptor([
+      { name: 'logo', maxCount: 1 },
+      { name: 'banner', maxCount: 1 },
+    ]),
   )
+  @ApiParam({ name: 'id', type: 'number' })
   @ApiOperation({ summary: 'Update Brand' })
   @ApiBadRequestResponse({ description: 'Bad Request' })
   public async update(
@@ -194,30 +151,20 @@ export class BrandController {
     @Body() payload: BrandUpdateDTO,
     @Param('id') id: number,
   ) {
-    if (files) {
-      files.logo.map((e: Express.Multer.File) => {
-        let trimName = e.originalname.split('.');
-        let randomName = `${Math.floor(Date.now() / 1000)}-${trimName[0]}`;
-        logoImg = `${randomName}${extname(e.originalname)}`;
-      });
-
-      files.banner.map((e: Express.Multer.File) => {
-        let trimName = e.originalname.split('.');
-        let randomName = `${Math.floor(Date.now() / 1000)}-${trimName[0]}`;
-        bannerImg = `${randomName}${extname(e.originalname)}`;
-      });
-    }
-
-    return this.brndSvc.update(
+    await this.brndSvc.update(
       {
         name: payload.name,
-        logo: logoImg,
-        banner: bannerImg,
+        logo: files ? files.logo : null,
+        banner: files ? files.banner : null,
         outlets: payload.outlets,
         products: payload.products,
       },
       id,
     );
+
+    return {
+      message: 'success update brand',
+    };
   }
 
   @Delete('delete/:id')
