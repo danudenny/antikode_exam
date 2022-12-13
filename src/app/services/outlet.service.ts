@@ -14,6 +14,7 @@ import { QueryBuilder } from 'typeorm-query-builder-wrapper';
 import { OutletCreateDto } from '../domains/outlet/outlet-create.dto';
 import { OutletQuery } from '../domains/outlet/outlet.query';
 import { OutletUpdateDto } from '../domains/outlet/outlet-update.dto';
+import { parseBool } from '../../utils/parse-bool';
 
 const monasLoc = {
   lat: '-6.1753924',
@@ -31,7 +32,7 @@ export class OutletService {
   public async getList(
     query: OutletQuery,
   ): Promise<OutletWithPaginationResponse> {
-    const params = { order: '^name', limit: 25, ...query };
+    const params = { limit: 25, ...query };
     const qb = new QueryBuilder(Outlet, 'out', params);
 
     qb.fieldResolverMap['id'] = 'out.id';
@@ -47,20 +48,15 @@ export class OutletService {
       ['out.latitude', 'latitude'],
     );
 
-    // @ts-ignore
-    if (query.nearest === 'true') {
-      qb.qb.addOrderBy(
-        `(longitude - ${monasLoc.lat}) * (longitude - ${monasLoc.lat}) +
+    const getNearest = parseBool(query.nearest);
+
+    qb.qb.addOrderBy(
+      `(longitude - ${monasLoc.lat}) * (longitude - ${monasLoc.lat}) +
                          (latitude - ${monasLoc.long}) * (latitude - ${monasLoc.long})`,
-        'ASC',
-      );
-    } else {
-      qb.qb.addOrderBy(
-        `(longitude - ${monasLoc.lat}) * (longitude - ${monasLoc.lat}) +
-                         (latitude - ${monasLoc.long}) * (latitude - ${monasLoc.long})`,
-        'DESC',
-      );
-    }
+      getNearest === true ? 'ASC' : 'DESC',
+    );
+
+    console.log(qb.qb.getQuery());
 
     const outlet = await qb.exec();
     return new OutletWithPaginationResponse(outlet, params);

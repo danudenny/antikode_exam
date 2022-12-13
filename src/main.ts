@@ -4,6 +4,7 @@ import { SwaggerModule } from '@nestjs/swagger/dist/swagger-module';
 import { AppModule } from './app.module';
 import { LoaderEnv } from './config/loader';
 import { Logger, PinoLogger } from 'nestjs-pino';
+import { CustomValidationPipe } from './utils/custom-validation';
 
 const logger = new PinoLogger({});
 
@@ -11,6 +12,8 @@ async function bootstrap() {
   // @ts-ignore
   const app = await NestFactory.create(AppModule, { logger: true });
   app.useLogger(app.get(Logger));
+
+  app.useGlobalPipes(new CustomValidationPipe());
 
   app.enableCors();
 
