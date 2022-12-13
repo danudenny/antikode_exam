@@ -45,9 +45,11 @@ export class BrandCreateDTO {
   @ApiProperty({
     isArray: true,
     type: Number,
+    required: false,
   })
   @IsOptional()
   @IsArray()
+  @Transform(({ value }) => (Array.isArray(value) ? value : Array(value)))
   outlets: Outlet[];
 
   @ApiProperty({
@@ -57,5 +59,6 @@ export class BrandCreateDTO {
   })
   @IsOptional()
   @IsArray()
+  @Transform(({ value }) => (Array.isArray(value) ? value : Array(value)))
   products: Product[];
 }
