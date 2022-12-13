@@ -3,7 +3,7 @@
 ## Deployed On Linux
 
 1. Access This site for Open API Docs: `https://antikode.danudenny.tech/docs`
-2.
+2. Or Run the Postman Collection (The files is located in Root Dir)
 
 ### Tech Stack :
 
