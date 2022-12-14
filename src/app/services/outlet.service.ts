@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Outlet } from '../../models/outlet.entity';
-import { getManager, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import {
   OutletResponse,
   OutletWithPaginationResponse,
@@ -15,6 +15,10 @@ import { OutletCreateDto } from '../domains/outlet/outlet-create.dto';
 import { OutletQuery } from '../domains/outlet/outlet.query';
 import { OutletUpdateDto } from '../domains/outlet/outlet-update.dto';
 import { parseBool } from '../../utils/parse-bool';
+import { UploadFile } from '../../utils/upload-file';
+import { Brand } from '../../models/brand.entity';
+
+const dirName = './public/upload/outlet/';
 
 const monasLoc = {
   lat: '-6.1753924',
@@ -24,6 +28,8 @@ const monasLoc = {
 @Injectable()
 export class OutletService {
   constructor(
+    @InjectRepository(Brand)
+    private readonly brndRepo: Repository<Brand>,
     @InjectRepository(Outlet)
     private readonly outRepo: Repository<Outlet>,
   ) {}
@@ -61,33 +67,43 @@ export class OutletService {
   }
 
   public async create(data: OutletCreateDto): Promise<OutletResponse> {
-    // Check registered outlet name
-    const outletExists = await this.outRepo.findOne({
-      where: {
-        name: data.name,
-      },
-    });
-
-    // if Outlet name already registered
-    if (outletExists) {
-      throw new BadRequestException(`Nama Outlet sudah terdaftar!`);
-    }
-
     // if Outlet name have no value / empty
     if (!data.name) {
       throw new BadRequestException(`Nama outlet tidak boleh kosong!`);
     }
 
+    const brandExists = await this.brndRepo.findOne({
+      where: {
+        id: data.brand,
+      },
+    });
+
+    if (!brandExists) {
+      throw new NotFoundException('Brand tidak tersedia');
+    }
+
+    const pictName = data.picture
+      ? UploadFile.fileRename(data.picture[0].originalname)
+      : '';
+
     // mapping Outlet creation
     let createOutlet = this.outRepo.create();
     createOutlet.name = data.name;
-    createOutlet.picture = data.picture;
+    createOutlet.picture = pictName.toString();
     createOutlet.address = data.address;
     createOutlet.longitude = data.longitude;
     createOutlet.latitude = data.latitude;
+    createOutlet.brand = data.brand;
 
     try {
       const saveOutlet = await this.outRepo.save(createOutlet);
+      if (saveOutlet && data.picture) {
+        await UploadFile.saveFile(
+          data.picture[0].buffer,
+          dirName,
+          pictName.toString(),
+        );
+      }
       return new OutletResponse(saveOutlet);
     } catch (err) {
       console.log(err);
@@ -113,33 +129,39 @@ export class OutletService {
       throw new NotFoundException('Outlet tidak ditemukan');
     }
 
-    // Check duplicate outlet name
-    let { name: outName } = data;
-    outName = outName?.trim();
-    if (outName) {
-      const outExists = await getManager().query(
-        `SELECT id
-         FROM outlets
-         WHERE id != $1
-           AND "name" ILIKE $2`,
-        [id, outName],
-      );
-      if (outExists?.length > 0) {
-        throw new BadRequestException(`Nama outlet sudah terdaftar!`);
-      }
+    const brandExists = await this.brndRepo.findOne({
+      where: {
+        id: data.brand,
+      },
+    });
+
+    if (!brandExists) {
+      throw new NotFoundException('Brand tidak tersedia');
     }
+
+    const pictName = data.picture
+      ? UploadFile.fileRename(data.picture[0].originalname)
+      : '';
 
     // Mapping updated outlet payload
     let updateOutlet = this.outRepo.create({
       name: data.name,
-      picture: data?.picture,
+      picture: pictName.toString(),
       address: data.address,
       longitude: data.longitude,
       latitude: data.latitude,
+      brand: data.brand,
     });
 
     try {
-      await this.outRepo.update(id, updateOutlet);
+      const saveOutlet = await this.outRepo.update(id, updateOutlet);
+      if (saveOutlet && data.picture) {
+        await UploadFile.saveFile(
+          data.picture[0].buffer,
+          dirName,
+          pictName.toString(),
+        );
+      }
       return {
         message: 'success update outlet',
         id: id,

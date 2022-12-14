@@ -14,9 +14,7 @@ import { BrandQuery } from '../domains/brand/brand.query';
 import { QueryBuilder } from 'typeorm-query-builder-wrapper';
 import { BrandCreateDTO } from '../domains/brand/brand-create.dto';
 import { BrandUpdateDTO } from '../domains/brand/brand-update.dto';
-import { Outlet } from '../../models/outlet.entity';
 import { BrandDetailResponse } from '../domains/brand/brand-detail.response';
-import { Product } from '../../models/product.entity';
 import { UploadFile } from '../../utils/upload-file';
 
 const dirName = './public/upload/brand/';
@@ -26,10 +24,6 @@ export class BrandService {
   constructor(
     @InjectRepository(Brand)
     private readonly brndRepo: Repository<Brand>,
-    @InjectRepository(Outlet)
-    private readonly outRepo: Repository<Outlet>,
-    @InjectRepository(Product)
-    private readonly prodRepo: Repository<Product>,
   ) {}
 
   // List All Brands
@@ -71,45 +65,37 @@ export class BrandService {
       throw new BadRequestException(`Nama produk tidak boleh kosong!`);
     }
 
-    // Get outlet
-    const createOutlet = data.outlets
-      ? await this.outRepo.findByIds(data.outlets)
-      : null;
-
     const logoName = data.logo
       ? UploadFile.fileRename(data.logo[0].originalname)
       : '';
-    const bannerName = data.logo
+    const bannerName = data.banner
       ? UploadFile.fileRename(data.banner[0].originalname)
       : '';
-
-    // Get Product
-    const createProduct = data.products
-      ? await this.prodRepo.findByIds(data.products)
-      : null;
 
     // mapping brand creation
     let createBrand = this.brndRepo.create({
       name: data.name,
       logo: logoName.toString() || null,
       banner: bannerName.toString() || null,
-      outlets: createOutlet,
-      products: createProduct,
     });
 
     try {
       const saveBrand = await this.brndRepo.save(createBrand);
-      if (saveBrand && (data.logo || data.banner)) {
-        await UploadFile.saveFile(
-          data.logo[0].buffer,
-          dirName,
-          logoName.toString(),
-        );
-        await UploadFile.saveFile(
-          data.banner[0].buffer,
-          dirName,
-          bannerName.toString(),
-        );
+      if (saveBrand) {
+        if (data.logo) {
+          await UploadFile.saveFile(
+            data.logo[0].buffer,
+            dirName,
+            logoName.toString(),
+          );
+        }
+        if (data.banner) {
+          await UploadFile.saveFile(
+            data.banner[0].buffer,
+            dirName,
+            bannerName.toString(),
+          );
+        }
       }
       return new BrandResponse(saveBrand);
     } catch (err) {
@@ -154,20 +140,10 @@ export class BrandService {
       }
     }
 
-    // Get outlet
-    const createOutlet = data.outlets
-      ? await this.outRepo.findByIds(data.outlets)
-      : null;
-
-    // Get Product
-    const createProduct = data.products
-      ? await this.prodRepo.findByIds(data.products)
-      : null;
-
     const logoName = data.logo
       ? UploadFile.fileRename(data.logo[0].originalname)
       : getBrand.logo;
-    const bannerName = data.logo
+    const bannerName = data.banner
       ? UploadFile.fileRename(data.banner[0].originalname)
       : getBrand.banner;
 
@@ -175,25 +151,27 @@ export class BrandService {
       name: data.name,
       logo: data.logo ? logoName.toString() : getBrand.logo,
       banner: data.logo ? bannerName.toString() : getBrand.banner,
-      outlets: createOutlet,
-      products: createProduct,
     };
 
     const updateBrand = this.brndRepo.merge(getBrand, newBrand);
 
     try {
       const save = (await this.brndRepo.save(updateBrand)).id;
-      if (save && (data.logo || data.banner)) {
-        await UploadFile.saveFile(
-          data.logo[0].buffer,
-          dirName,
-          logoName.toString(),
-        );
-        await UploadFile.saveFile(
-          data.banner[0].buffer,
-          dirName,
-          bannerName.toString(),
-        );
+      if (save) {
+        if (data.logo) {
+          await UploadFile.saveFile(
+            data.logo[0].buffer,
+            dirName,
+            logoName.toString(),
+          );
+        }
+        if (data.banner) {
+          await UploadFile.saveFile(
+            data.banner[0].buffer,
+            dirName,
+            bannerName.toString(),
+          );
+        }
       }
 
       return;

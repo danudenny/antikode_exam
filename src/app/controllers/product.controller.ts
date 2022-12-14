@@ -7,7 +7,7 @@ import {
   Patch,
   Post,
   Query,
-  UploadedFile,
+  UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
 import {
@@ -25,13 +25,9 @@ import {
   ProductResponse,
   ProductWithPaginationResponse,
 } from '../domains/product/product.response';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ProductCreateDto } from '../domains/product/product-create.dto';
 import { ProductUpdateDto } from '../domains/product/product-update.dto';
-
-let pictureImg = '';
 
 @Controller('products')
 @ApiTags('Product')
@@ -50,53 +46,22 @@ export class ProductController {
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Create a Product' })
   @ApiOkResponse({ type: ProductResponse })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        name: {
-          type: 'string',
-          example: 'product',
-        },
-        picture: {
-          type: 'string',
-          format: 'binary',
-        },
-        price: {
-          type: 'number',
-          example: 1000000,
-        },
-      },
-    },
-  })
-  @UseInterceptors(
-    FileInterceptor('picture', {
-      storage: diskStorage({
-        destination: './public/upload/product',
-        filename: (req, picture, cb) => {
-          let trimName = picture.originalname.split('.');
-          let randomName = `${Math.floor(Date.now() / 1000)}-${trimName[0]}`;
-          let fileName = `${randomName}${extname(picture.originalname)}`;
-          cb(null, fileName);
-        },
-      }),
-    }),
-  )
+  @ApiBody({ type: ProductCreateDto })
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'picture', maxCount: 1 }]))
   public async create(
-    @UploadedFile() picture: Express.Multer.File,
+    @UploadedFiles() file,
     @Body() payload: ProductCreateDto,
   ) {
-    if (picture != null) {
-      let trimName = picture.originalname.split('.');
-      let randomName = `${Math.floor(Date.now() / 1000)}-${trimName[0]}`;
-      pictureImg = `${randomName}${extname(picture.originalname)}`;
-    }
-
-    return this.prodSvc.create({
+    await this.prodSvc.create({
       name: payload.name,
-      picture: pictureImg,
+      picture: file ? file.picture : null,
       price: payload.price,
+      brand: payload.brand,
     });
+
+    return {
+      message: 'success create product',
+    };
   }
 
   @Get('show/:id')
@@ -110,57 +75,22 @@ export class ProductController {
 
   @Patch('update/:id')
   @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        name: {
-          type: 'string',
-          example: 'kemang',
-        },
-        picture: {
-          type: 'string',
-          format: 'binary',
-        },
-        price: {
-          type: 'number',
-          example: 1000000,
-        },
-      },
-    },
-  })
+  @ApiBody({ type: ProductUpdateDto })
   @ApiParam({ name: 'id', type: 'number' })
-  @UseInterceptors(
-    FileInterceptor('picture', {
-      storage: diskStorage({
-        destination: './public/upload/product',
-        filename: (req, picture, cb) => {
-          let trimName = picture.originalname.split('.');
-          let randomName = `${Math.floor(Date.now() / 1000)}-${trimName[0]}`;
-          let fileName = `${randomName}${extname(picture.originalname)}`;
-          cb(null, fileName);
-        },
-      }),
-    }),
-  )
   @ApiOperation({ summary: 'Update Product' })
   @ApiBadRequestResponse({ description: 'Bad Request' })
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'picture', maxCount: 1 }]))
   public async update(
-    @UploadedFile() pictures: Express.Multer.File,
+    @UploadedFiles() file,
     @Body() payload: ProductUpdateDto,
     @Param('id') id: number,
   ) {
-    if (pictures != null) {
-      let trimName = pictures.originalname.split('.');
-      let randomName = `${Math.floor(Date.now() / 1000)}-${trimName[0]}`;
-      pictureImg = `${randomName}${extname(pictures.originalname)}`;
-    }
-
     return this.prodSvc.update(
       {
         name: payload.name,
-        picture: pictureImg,
+        picture: file ? file.picture : null,
         price: payload.price,
+        brand: payload.brand,
       },
       id,
     );

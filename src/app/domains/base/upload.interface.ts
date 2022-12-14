@@ -6,4 +6,5 @@ export interface IUploadFile {
   buffer: Buffer;
   size: 'integer';
   path: 'string';
+  filename: 'string';
 }

@@ -1,4 +1,6 @@
-import { ProductDto } from "./product.dto";
+import { ProductDto } from './product.dto';
+import { BrandDTO } from '../brand/brand.dto';
+import { Brand } from '../../../models/brand.entity';
 
 export class ProductResponseMapper {
   public static toDTO(dto: Partial<ProductDto>): ProductDto {
@@ -7,6 +9,7 @@ export class ProductResponseMapper {
     prod.name = dto.name;
     prod.picture = dto.picture;
     prod.price = dto.price;
+    prod.brand = this.toBrandDTO(dto.brand);
     return prod;
   }
 
@@ -22,5 +25,11 @@ export class ProductResponseMapper {
     } else {
       return this.toManyDTO(data);
     }
+  }
+
+  private static toBrandDTO(dto: Partial<Brand>): Brand {
+    const br = new Brand();
+    br.name = dto.name;
+    return br;
   }
 }

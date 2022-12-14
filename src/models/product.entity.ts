@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToMany, JoinTable } from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseModel } from './base_model';
 import { Brand } from './brand.entity';
 
@@ -24,4 +24,11 @@ export class Product extends BaseModel {
     nullable: false,
   })
   price: number;
+
+  @ManyToOne(() => Brand, (brand) => brand.outlets, {
+    cascade: true,
+    eager: true,
+  })
+  @JoinColumn({ name: 'brand_id', referencedColumnName: 'id' })
+  brand: Brand;
 }

@@ -1,8 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { Outlet } from '../../../models/outlet.entity';
-import { Product } from '../../../models/product.entity';
-import { IUploadFile } from './upload.interface';
+import { IsOptional, IsString } from 'class-validator';
+import { IUploadFile } from '../base/upload.interface';
 
 export class BrandUpdateDTO {
   @ApiProperty({
@@ -12,24 +10,23 @@ export class BrandUpdateDTO {
   @IsString()
   name: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Brand Logo',
     example: '',
-    type: 'binary',
+    type: String,
+    format: 'binary',
+    required: false,
   })
+  @IsOptional()
   logo: IUploadFile;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Brand Banner Image',
     example: '',
-    type: 'binary',
+    type: String,
+    format: 'binary',
+    required: false,
   })
   @IsOptional()
   banner: IUploadFile;
-
-  @ApiProperty()
-  outlets: Outlet[];
-
-  @ApiProperty()
-  products: Product[];
 }

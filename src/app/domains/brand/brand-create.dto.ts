@@ -10,7 +10,7 @@ import {
 } from 'class-validator';
 import { Outlet } from '../../../models/outlet.entity';
 import { Product } from '../../../models/product.entity';
-import { IUploadFile } from './upload.interface';
+import { IUploadFile } from '../base/upload.interface';
 import { Transform, Type } from 'class-transformer';
 
 export class BrandCreateDTO {
@@ -42,23 +42,17 @@ export class BrandCreateDTO {
   @IsOptional()
   banner: IUploadFile;
 
-  @ApiProperty({
-    isArray: true,
-    type: Number,
-    required: false,
-  })
-  @IsOptional()
-  @IsArray()
-  @Transform(({ value }) => (Array.isArray(value) ? value : Array(value)))
-  outlets: Outlet[];
-
-  @ApiProperty({
-    isArray: true,
-    type: Number,
-    required: false,
-  })
-  @IsOptional()
-  @IsArray()
-  @Transform(({ value }) => (Array.isArray(value) ? value : Array(value)))
-  products: Product[];
+  // @ApiProperty({
+  //   type: Number,
+  //   required: false,
+  // })
+  // @IsOptional()
+  // outlets: Outlet[];
+  //
+  // @ApiProperty({
+  //   type: Number,
+  //   required: false,
+  // })
+  // @IsOptional()
+  // products: Product[];
 }

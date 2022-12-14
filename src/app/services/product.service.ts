@@ -1,21 +1,35 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Product } from "../../models/product.entity";
-import { getManager, Repository } from "typeorm";
-import { ProductResponse, ProductWithPaginationResponse } from "../domains/product/product.response";
-import { ProductQuery } from "../domains/product/product.query";
-import { QueryBuilder } from "typeorm-query-builder-wrapper";
-import { ProductCreateDto } from "../domains/product/product-create.dto";
-import { ProductUpdateDto } from "../domains/product/product-update.dto";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Product } from '../../models/product.entity';
+import { Repository } from 'typeorm';
+import {
+  ProductResponse,
+  ProductWithPaginationResponse,
+} from '../domains/product/product.response';
+import { ProductQuery } from '../domains/product/product.query';
+import { QueryBuilder } from 'typeorm-query-builder-wrapper';
+import { ProductCreateDto } from '../domains/product/product-create.dto';
+import { ProductUpdateDto } from '../domains/product/product-update.dto';
+import { UploadFile } from '../../utils/upload-file';
+import { Brand } from '../../models/brand.entity';
+
+const dirName = './public/upload/product/';
+
 @Injectable()
 export class ProductService {
   constructor(
     @InjectRepository(Product)
-    private readonly prodRepo: Repository<Product>
+    private readonly prodRepo: Repository<Product>,
+    @InjectRepository(Brand)
+    private readonly brndRepo: Repository<Brand>,
   ) {}
 
   public async getList(
-    query: ProductQuery
+    query: ProductQuery,
   ): Promise<ProductWithPaginationResponse> {
     const params = { order: '^name', limit: 25, ...query };
     const qb = new QueryBuilder(Product, 'prod', params);
@@ -31,39 +45,49 @@ export class ProductService {
       ['prod.price', 'price'],
     );
 
+    qb.leftJoin((p) => p.brand, 'br');
+
     const product = await qb.exec();
-    return new ProductWithPaginationResponse(product, params)
+    return new ProductWithPaginationResponse(product, params);
   }
 
-  public async create(
-    data: ProductCreateDto
-  ): Promise<ProductResponse> {
-    // Check registered product name
-    const productExists = await this.prodRepo.findOne({
-      where: {
-        name: data.name
-      },
-    });
-
-    // if Product name already registered
-    if (productExists) {
-      throw new BadRequestException(`Nama product sudah terdaftar!`);
-    }
-
+  public async create(data: ProductCreateDto): Promise<ProductResponse> {
     // if Product name have no value / empty
     if (!data.name) {
       throw new BadRequestException(`Nama product tidak boleh kosong!`);
     }
 
+    const brandExists = await this.brndRepo.findOne({
+      where: {
+        id: data.brand,
+      },
+    });
+
+    if (!brandExists) {
+      throw new NotFoundException('Brand tidak tersedia');
+    }
+
+    const pictName = data.picture
+      ? UploadFile.fileRename(data.picture[0].originalname)
+      : '';
+
     // mapping product creation
     let prodCreate = this.prodRepo.create();
     prodCreate.name = data.name;
-    prodCreate.picture = data.picture;
+    prodCreate.picture = pictName.toString();
     prodCreate.price = data.price;
+    prodCreate.brand = data.brand;
 
     try {
       const saveProduct = await this.prodRepo.save(prodCreate);
-      return new ProductResponse(saveProduct)
+      if (saveProduct && data.picture) {
+        await UploadFile.saveFile(
+          data.picture[0].buffer,
+          dirName,
+          pictName.toString(),
+        );
+      }
+      return new ProductResponse(saveProduct);
     } catch (err) {
       console.log(err);
       throw err;
@@ -74,10 +98,10 @@ export class ProductService {
   public async findById(id: number): Promise<ProductResponse> {
     let getProduct = await this.prodRepo.findOne(id);
     if (!getProduct) {
-      throw new NotFoundException("Product tidak ditemukan")
+      throw new NotFoundException('Product tidak ditemukan');
     }
 
-    return new ProductResponse(getProduct)
+    return new ProductResponse(getProduct);
   }
 
   // Update Product
@@ -85,34 +109,43 @@ export class ProductService {
     // Get product by id id if exists
     let getProduct = await this.prodRepo.findOne(id);
     if (!getProduct) {
-      throw new NotFoundException("Product tidak ditemukan")
+      throw new NotFoundException('Product tidak ditemukan');
     }
 
-    // Check duplicate product name
-    let { name: prodName } = data;
-    prodName = prodName?.trim();
-    if (prodName) {
-      const prodExists = await getManager().query(
-        `SELECT id FROM products WHERE id != $1 AND "name" ILIKE $2`,
-        [id, prodName],
-      );
-      if (prodExists?.length > 0) {
-        throw new BadRequestException(`Nama product sudah terdaftar!`);
-      }
+    const brandExists = await this.brndRepo.findOne({
+      where: {
+        id: data.brand,
+      },
+    });
+
+    if (!brandExists) {
+      throw new NotFoundException('Brand tidak tersedia');
     }
+
+    const pictName = data.picture
+      ? UploadFile.fileRename(data.picture[0].originalname)
+      : '';
 
     // Mapping updated product payload
     let updateProduct = this.prodRepo.create({
       name: data.name,
-      picture: data?.picture,
+      picture: pictName.toString(),
       price: data.price,
+      brand: data.brand,
     });
 
     try {
-      await this.prodRepo.update(id, updateProduct);
+      const saveProduct = await this.prodRepo.update(id, updateProduct);
+      if (saveProduct && data.picture) {
+        await UploadFile.saveFile(
+          data.picture[0].buffer,
+          dirName,
+          pictName.toString(),
+        );
+      }
       return {
-        "message": "success update product",
-        "id": id
+        message: 'success update product',
+        id: id,
       };
     } catch (err) {
       console.log(err);
@@ -124,18 +157,17 @@ export class ProductService {
   public async delete(id: number): Promise<any> {
     let getProduct = await this.prodRepo.findOne(id);
     if (!getProduct) {
-      throw new NotFoundException("Product tidak ditemukan")
+      throw new NotFoundException('Product tidak ditemukan');
     }
 
     try {
       await this.prodRepo.delete(id);
       return {
-        "message": "success delete product",
-        "id": id
-      }
+        message: 'success delete product',
+        id: id,
+      };
     } catch (e) {
-      throw e.message
+      throw e.message;
     }
-
   }
 }

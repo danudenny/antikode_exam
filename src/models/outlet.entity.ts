@@ -1,10 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToMany,
-  JoinTable,
-} from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseModel } from './base_model';
 import { Brand } from './brand.entity';
 
@@ -45,6 +39,7 @@ export class Outlet extends BaseModel {
   })
   latitude: number;
 
-  @ManyToMany(() => Brand, (brand) => brand.outlets)
-  brands: Brand[];
+  @ManyToOne(() => Brand, (brand) => brand.outlets, { cascade: true })
+  @JoinColumn({ name: 'brand_id', referencedColumnName: 'id' })
+  brand: Brand;
 }

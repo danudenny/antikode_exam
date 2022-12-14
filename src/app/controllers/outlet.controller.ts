@@ -7,24 +7,28 @@ import {
   UseInterceptors,
   Param,
   Delete,
-  Patch, UploadedFile
-} from "@nestjs/common";
+  Patch,
+  UploadedFiles,
+} from '@nestjs/common';
 import {
-  ApiBadRequestResponse, ApiBody, ApiConsumes,
+  ApiBadRequestResponse,
+  ApiBody,
+  ApiConsumes,
   ApiOkResponse,
-  ApiOperation, ApiParam,
-  ApiTags
-} from "@nestjs/swagger";
-import { FileInterceptor } from "@nestjs/platform-express";
-import { extname } from "path";
-import { diskStorage } from "multer";
-import { OutletResponse, OutletWithPaginationResponse } from "../domains/outlet/outlet.response";
-import { OutletService } from "../services/outlet.service";
-import { OutletQuery } from "../domains/outlet/outlet.query";
-import { OutletCreateDto } from "../domains/outlet/outlet-create.dto";
-import { OutletUpdateDto } from "../domains/outlet/outlet-update.dto";
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import {
+  OutletResponse,
+  OutletWithPaginationResponse,
+} from '../domains/outlet/outlet.response';
+import { OutletService } from '../services/outlet.service';
+import { OutletQuery } from '../domains/outlet/outlet.query';
+import { OutletCreateDto } from '../domains/outlet/outlet-create.dto';
+import { OutletUpdateDto } from '../domains/outlet/outlet-update.dto';
 
-let pictureImg = ""
 @Controller('outlets')
 @ApiTags('Outlet')
 export class OutletController {
@@ -42,65 +46,25 @@ export class OutletController {
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Create a Outlet' })
   @ApiOkResponse({ type: OutletResponse })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        name: {
-          type: 'string',
-          example: "kemang"
-        },
-        picture: {
-          type: 'string',
-          format: 'binary',
-        },
-        address: {
-          type: 'string',
-          example: "jakarta"
-        },
-        longitude: {
-          type: 'string',
-          example: "106.816666"
-        },
-        latitude: {
-          type: 'string',
-          example: "-6.200000"
-        },
-      },
-    },
-  })
-  @UseInterceptors(FileInterceptor('picture', {
-    storage: diskStorage({
-      destination: './public/upload/outlet',
-      filename: (req, picture, cb) => {
-        let trimName = picture.originalname.split(".")
-        let randomName = `${Math.floor(Date.now() / 1000)}-${trimName[0]}`
-        let fileName = `${randomName}${extname(picture.originalname)}`
-        cb(null, fileName)
-      }
-    })
-  }))
-  public async create(
-    @UploadedFile() picture: Express.Multer.File,
-    @Body() payload: OutletCreateDto
-  ) {
-    if (picture != null) {
-      let trimName = picture.originalname.split(".")
-      let randomName = `${Math.floor(Date.now() / 1000)}-${trimName[0]}`
-      pictureImg = `${randomName}${extname(picture.originalname)}`
-    }
-
-    return this.outSvc.create({
+  @ApiBody({ type: OutletCreateDto })
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'picture', maxCount: 1 }]))
+  public async create(@UploadedFiles() file, @Body() payload: OutletCreateDto) {
+    await this.outSvc.create({
       name: payload.name,
-      picture: pictureImg,
+      picture: file ? file.picture : null,
       address: payload.address,
       longitude: payload.longitude,
       latitude: payload.latitude,
-    })
+      brand: payload.brand,
+    });
+
+    return {
+      message: 'success create outlet',
+    };
   }
 
   @Get('show/:id')
-  @ApiParam({name: 'id'})
+  @ApiParam({ name: 'id' })
   @ApiOperation({ summary: 'get outlet by ID' })
   @ApiOkResponse({ type: OutletResponse })
   @ApiBadRequestResponse({ description: 'Bad Request' })
@@ -110,73 +74,39 @@ export class OutletController {
 
   @Patch('update/:id')
   @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        name: {
-          type: 'string',
-          example: "kemang"
-        },
-        picture: {
-          type: 'string',
-          format: 'binary',
-        },
-        address: {
-          type: 'string',
-          example: "jakarta"
-        },
-        longitude: {
-          type: 'string',
-          example: "106.816666"
-        },
-        latitude: {
-          type: 'string',
-          example: "-6.200000"
-        },
-      },
-    },
-  })
-  @ApiParam({name: 'id', type: 'number'})
-  @UseInterceptors(FileInterceptor('picture', {
-    storage: diskStorage({
-      destination: './public/upload/outlet',
-      filename: (req, picture, cb) => {
-        let trimName = picture.originalname.split(".")
-        let randomName = `${Math.floor(Date.now() / 1000)}-${trimName[0]}`
-        let fileName = `${randomName}${extname(picture.originalname)}`
-        cb(null, fileName)
-      }
-    })
-  }))
+  @ApiBody({ type: OutletUpdateDto })
+  @ApiParam({ name: 'id', type: 'number' })
   @ApiOperation({ summary: 'Update Outlet' })
   @ApiBadRequestResponse({ description: 'Bad Request' })
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'picture', maxCount: 1 }]))
   public async update(
-    @UploadedFile() pictures: Express.Multer.File,
+    @UploadedFiles() file,
     @Body() payload: OutletUpdateDto,
-    @Param('id') id: number
+    @Param('id') id: number,
   ) {
-    if (pictures != null) {
-      let trimName = pictures.originalname.split(".")
-      let randomName = `${Math.floor(Date.now() / 1000)}-${trimName[0]}`
-      pictureImg = `${randomName}${extname(pictures.originalname)}`
-    }
+    await this.outSvc.update(
+      {
+        name: payload.name,
+        picture: file ? file.picture : null,
+        address: payload.address,
+        longitude: payload.longitude,
+        latitude: payload.latitude,
+        brand: payload.brand,
+      },
+      id,
+    );
 
-    return this.outSvc.update({
-      name: payload.name,
-      picture: pictureImg,
-      address: payload.address,
-      longitude: payload.longitude,
-      latitude: payload.latitude,
-    }, id)
+    return {
+      message: 'success update outlet',
+      id: id,
+    };
   }
 
   @Delete('delete/:id')
-  @ApiParam({name: 'id'})
+  @ApiParam({ name: 'id' })
   @ApiOperation({ summary: 'Delete Outlet by ID' })
   @ApiBadRequestResponse({ description: 'Bad Request' })
   public async delete(@Param() id: number) {
     return await this.outSvc.delete(id);
   }
-
 }

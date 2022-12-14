@@ -9,7 +9,6 @@ import {
   Param,
   Delete,
   Patch,
-  ValidationPipe,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -63,8 +62,6 @@ export class BrandController {
       name: payload.name,
       logo: files ? files.logo : null,
       banner: files ? files.banner : null,
-      outlets: payload.outlets,
-      products: payload.products,
     });
 
     return {
@@ -83,36 +80,7 @@ export class BrandController {
 
   @Patch('update/:id')
   @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        name: {
-          type: 'string',
-        },
-        logo: {
-          type: 'string',
-          format: 'binary',
-        },
-        banner: {
-          type: 'string',
-          format: 'binary',
-        },
-        outlets: {
-          type: 'array',
-          items: {
-            type: 'integer',
-          },
-        },
-        products: {
-          type: 'array',
-          items: {
-            type: 'integer',
-          },
-        },
-      },
-    },
-  })
+  @ApiBody({ type: BrandUpdateDTO })
   @UseInterceptors(
     FileFieldsInterceptor([
       { name: 'logo', maxCount: 1 },
@@ -132,8 +100,6 @@ export class BrandController {
         name: payload.name,
         logo: files ? files.logo : null,
         banner: files ? files.banner : null,
-        outlets: payload.outlets,
-        products: payload.products,
       },
       id,
     );

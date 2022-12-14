@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToMany, JoinTable } from 'typeorm';
+import { Entity, Column, OneToMany } from 'typeorm';
 import { BaseModel } from './base_model';
 import { Outlet } from './outlet.entity';
 import { Product } from './product.entity';
@@ -24,31 +24,9 @@ export class Brand extends BaseModel {
   })
   banner: string;
 
-  @ManyToMany(() => Outlet, { cascade: true })
-  @JoinTable({
-    name: 'brand_outlets',
-    joinColumn: {
-      name: 'brand_id',
-      referencedColumnName: 'id',
-    },
-    inverseJoinColumn: {
-      name: 'outlet_id',
-      referencedColumnName: 'id',
-    },
-  })
+  @OneToMany(() => Outlet, (outlet) => outlet.brand)
   outlets: Outlet[];
 
-  @ManyToMany(() => Product)
-  @JoinTable({
-    name: 'brand_products',
-    joinColumn: {
-      name: 'brand_id',
-      referencedColumnName: 'id',
-    },
-    inverseJoinColumn: {
-      name: 'product_id',
-      referencedColumnName: 'id',
-    },
-  })
+  @OneToMany(() => Product, (product) => product.brand)
   products: Product[];
 }
